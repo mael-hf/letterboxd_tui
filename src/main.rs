@@ -30,9 +30,9 @@ fn main() -> io::Result<()> {
         if let Event::Key(key) = event::read()? {
             if key.kind == KeyEventKind::Press {
                 match app.input_mode {
-                    InputMode::Adding => match key.code {
+                    InputMode::Naming => match key.code {
                         KeyCode::Enter => {
-                            if let InputMode::Adding = app.input_mode {
+                            if let InputMode::Naming= app.input_mode {
                                 if !app.input_value.is_empty() {
                                     app.add_film(app.input_value.clone());
                                 }
@@ -54,9 +54,10 @@ fn main() -> io::Result<()> {
                             KeyCode::Down => app.move_selection_down(),
                             KeyCode::Char('w') => app.toggle_watched(),
                             KeyCode::Char('d') => app.delete_film(),
+                            KeyCode::Char('s') => storage::try_save(&app.films),
                             // KeyCode::Char('a') => app.add_film(String::from("Yolanda")),
                             KeyCode::Char('a') => {
-                                app.input_mode = InputMode::Adding;
+                                app.input_mode = InputMode::Naming;
                                 app.input_value.clear();
                             }
                             KeyCode::Char('f') => {
@@ -78,9 +79,9 @@ fn main() -> io::Result<()> {
         crossterm::terminal::ClearType::All,
     ))?;
 
-    if let Err(e) = storage::save(&app.films) {
-        eprintln!("Failed to save: {}", e);
-    }
+    // if let Err(e) = storage::save(&app.films) {
+    //     eprintln!("Failed to save: {}", e);
+    // }
     disable_raw_mode()?;
     Ok(())
 }

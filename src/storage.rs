@@ -33,3 +33,7 @@ pub fn save(films: &[Film]) -> Result<(), Box<dyn std::error::Error>> {
     fs::write(localpath, data)?;
     Ok(())
 }
+
+pub fn try_save(films: &[Film]){ 
+let _ = save(films); 
+}

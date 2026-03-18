@@ -2,7 +2,7 @@ use crate::models::{Film, Filter};
 
 pub enum InputMode {
     Normal,
-    Adding,
+    Naming,
 }
 pub struct App {
     pub films: Vec<Film>,
