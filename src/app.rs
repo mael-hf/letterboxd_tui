@@ -1,9 +1,15 @@
 use crate::models::{Film, Filter};
 
+pub enum InputMode {
+    Normal,
+    Adding,
+}
 pub struct App {
     pub films: Vec<Film>,
     pub selected_index: usize,
     pub filter: Filter,
+    pub input_mode: InputMode,
+    pub input_value: String,
 }
 
 impl App {
@@ -12,6 +18,8 @@ impl App {
             films: Vec::new(),
             selected_index: 0,
             filter: Filter::default(),
+            input_mode: InputMode::Normal,
+            input_value: String::from(""),
         }
     }
 

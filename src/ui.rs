@@ -1,9 +1,12 @@
 use crate::app::App;
+use crate::app::InputMode;
+
 use ratatui::{
     layout::{Constraint, Direction, Layout},
+    prelude::Rect,
     style::{Color, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, List, ListItem, Paragraph},
+    widgets::{Block, Borders, Clear, List, ListItem, Paragraph},
     Frame,
 };
 
@@ -62,4 +65,26 @@ pub fn ui(frame: &mut Frame, app: &App) {
     .block(Block::default().borders(Borders::ALL));
 
     frame.render_widget(help_text, chunks[2]);
+
+    if matches!(app.input_mode, InputMode::Adding) {
+        let popup = Paragraph::new(app.input_value.as_str())
+            .block(
+                Block::default()
+                    .title("Add Film")
+                    .borders(Borders::ALL)
+                    .border_style(Style::new().fg(Color::Yellow)),
+            )
+            .style(Style::new().bg(Color::Black));
+
+        let area = centered_rect(60, 3, frame.area());
+        frame.render_widget(Clear, area);
+        frame.render_widget(popup, area);
+    }
+}
+
+fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
+    let mid_x = r.width / 2 - percent_x / 2;
+    let mid_y = r.height / 2; // - percent_y/2;
+    let popup = Rect::new(mid_x, mid_y, percent_x, percent_y);
+    popup
 }

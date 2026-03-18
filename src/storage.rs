@@ -11,7 +11,6 @@ pub fn get_data_path() -> PathBuf {
     path.push(DATA_FILE);
     path
 }
-
 pub fn load() -> Vec<Film> {
     let local_path = PathBuf::from("films.json");
     let path = if local_path.exists() {
@@ -27,8 +26,10 @@ pub fn load() -> Vec<Film> {
 }
 
 pub fn save(films: &[Film]) -> Result<(), Box<dyn std::error::Error>> {
-    let path = get_data_path();
+    // let path = get_data_path();
+
+    let localpath = PathBuf::from("films.json");
     let data = serde_json::to_string_pretty(films)?;
-    fs::write(path, data)?;
+    fs::write(localpath, data)?;
     Ok(())
 }
