@@ -1,8 +1,13 @@
 use crate::models::{Film, Filter};
 
+pub enum NamingMode {
+    Creating,
+    Modifying,
+}
+
 pub enum InputMode {
     Normal,
-    Naming,
+    Naming(NamingMode),
 }
 pub struct App {
     pub films: Vec<Film>,
@@ -53,6 +58,14 @@ impl App {
         if let Some(film) = self.filtered_films().get(self.selected_index) {
             if let Some(idx) = self.films.iter().position(|f| f.name == film.name) {
                 self.films[idx].watched = !self.films[idx].watched;
+            }
+        }
+    }
+
+    pub fn rename(&mut self, new_name: String) {
+        if let Some(film) = self.filtered_films().get(self.selected_index) {
+            if let Some(idx) = self.films.iter().position(|f| f.name == film.name) {
+                self.films[idx].name = new_name;
             }
         }
     }

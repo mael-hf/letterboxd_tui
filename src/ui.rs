@@ -66,7 +66,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
 
     frame.render_widget(help_text, chunks[2]);
 
-    if matches!(app.input_mode, InputMode::Naming) {
+    if matches!(app.input_mode, InputMode::Naming(_)) {
         let popup = Paragraph::new(app.input_value.as_str())
             .block(
                 Block::default()

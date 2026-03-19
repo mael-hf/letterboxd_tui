@@ -3,7 +3,7 @@ mod models;
 mod storage;
 mod ui;
 
-use app::{App, InputMode};
+use app::{App, InputMode, NamingMode};
 use crossterm::{
     event::{self, Event, KeyCode, KeyEventKind},
     terminal::{disable_raw_mode, enable_raw_mode},
@@ -30,14 +30,21 @@ fn main() -> io::Result<()> {
         if let Event::Key(key) = event::read()? {
             if key.kind == KeyEventKind::Press {
                 match app.input_mode {
-                    InputMode::Naming => match key.code {
+                    InputMode::Naming(_) => match key.code {
                         KeyCode::Enter => {
-                            if let InputMode::Naming= app.input_mode {
-                                if !app.input_value.is_empty() {
-                                    app.add_film(app.input_value.clone());
+                            if !app.input_value.is_empty() {
+                                match app.input_mode {
+                                    InputMode::Naming(NamingMode::Creating) => {
+                                        app.add_film(app.input_value.clone())
+                                    }
+                                    InputMode::Naming(NamingMode::Modifying) => {
+                                        app.rename(app.input_value.clone())
+                                    }
+
+                                    _ => todo!(),
                                 }
-                                app.input_mode = InputMode::Normal;
                             }
+                            app.input_mode = InputMode::Normal;
                         }
                         KeyCode::Esc => app.input_mode = InputMode::Normal,
                         KeyCode::Char(c) => app.input_value.push(c),
@@ -55,9 +62,13 @@ fn main() -> io::Result<()> {
                             KeyCode::Char('w') => app.toggle_watched(),
                             KeyCode::Char('d') => app.delete_film(),
                             KeyCode::Char('s') => storage::try_save(&app.films),
-                            // KeyCode::Char('a') => app.add_film(String::from("Yolanda")),
+                            // KeyCode::Char('a') => app.rename(String::from("Yolanda")),
                             KeyCode::Char('a') => {
-                                app.input_mode = InputMode::Naming;
+                                app.input_mode = InputMode::Naming(NamingMode::Creating);
+                                app.input_value.clear();
+                            }
+                            KeyCode::Char('r') => {
+                                app.input_mode = InputMode::Naming(NamingMode::Modifying);
                                 app.input_value.clear();
                             }
                             KeyCode::Char('f') => {
