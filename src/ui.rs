@@ -2,7 +2,7 @@ use crate::app::{App, InputMode, NamingMode};
 
 use ratatui::{
     layout::{Constraint, Direction, Layout},
-    prelude::Rect,
+    prelude::{Rect, Stylize},
     style::{Color, Style},
     text::{Line, Span},
     widgets::{Block, Borders, Clear, List, ListItem, Paragraph},
@@ -65,7 +65,9 @@ pub fn ui(frame: &mut Frame, app: &App) {
 
     frame.render_widget(help_text, chunks[2]);
 
-    if !(matches!(app.input_mode, InputMode::Normal) || matches!(app.input_mode, InputMode::Breakdown)) {
+    if !(matches!(app.input_mode, InputMode::Normal)
+        || matches!(app.input_mode, InputMode::Breakdown))
+    {
         let title = match app.input_mode {
             InputMode::Naming(NamingMode::Creating) => String::from("Name Film"),
             InputMode::Naming(NamingMode::Modifying) => String::from("Rename Film"),
@@ -85,6 +87,46 @@ pub fn ui(frame: &mut Frame, app: &App) {
         let area = centered_rect(60, 3, frame.area());
         frame.render_widget(Clear, area);
         frame.render_widget(popup, area);
+    }
+    if matches!(app.input_mode, InputMode::Breakdown) {
+        if let Some(film) = app.filtered_films().get(app.selected_index) {
+            let content = vec![
+                Line::from(vec![Span::bold("🎬 ".into()), Span::raw(&film.name)]),
+                Line::from(vec![
+                    Span::raw("Director: "),
+                    Span::raw(film.director.as_deref().unwrap_or("N/A")),
+                ]),
+                Line::from(vec![
+                    Span::raw("Rating: "),
+                    Span::raw(
+                        film.rating
+                            .map(|r| r.to_string())
+                            .unwrap_or_else(|| "N/A".into()),
+                    ),
+                ]),
+                Line::from(vec![
+                    Span::raw("Watched: "),
+                    Span::raw(if film.watched { "✅" } else { "❌" }),
+                ]),
+                Line::from(vec![
+                    Span::raw("Comments: "),
+                    Span::raw(film.comments.as_deref().unwrap_or("N/A")),
+                ]),
+            ];
+
+            let popup = Paragraph::new(content)
+                .block(
+                    Block::default()
+                        .title("Film Breakdown")
+                        .borders(Borders::ALL)
+                        .border_style(Style::new().fg(Color::Cyan)),
+                )
+                .style(Style::new().bg(Color::Black));
+
+            let area = centered_rect(70, 12, frame.area()); // wider and taller
+            frame.render_widget(Clear, area);
+            frame.render_widget(popup, area);
+        }
     }
 }
 

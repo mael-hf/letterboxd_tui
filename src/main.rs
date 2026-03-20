@@ -69,7 +69,11 @@ fn main() -> io::Result<()> {
                             _ => {}
                         }
                     }
-                    InputMode::Breakdown => {}
+                    InputMode::Breakdown => {
+                        if matches!(key.code, KeyCode::Enter) | matches!(key.code, KeyCode::Esc) | matches!(key.code, KeyCode::Char('q')) {
+                            app.input_mode = InputMode::Normal;
+                        }
+                    }
                     _ => match key.code {
                         KeyCode::Enter => {
                             if !app.input_value.is_empty() {
