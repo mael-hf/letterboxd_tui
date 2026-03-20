@@ -65,7 +65,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
 
     frame.render_widget(help_text, chunks[2]);
 
-    if !matches!(app.input_mode, InputMode::Normal) {
+    if !(matches!(app.input_mode, InputMode::Normal) || matches!(app.input_mode, InputMode::Breakdown)) {
         let title = match app.input_mode {
             InputMode::Naming(NamingMode::Creating) => String::from("Name Film"),
             InputMode::Naming(NamingMode::Modifying) => String::from("Rename Film"),

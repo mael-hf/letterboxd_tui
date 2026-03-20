@@ -10,6 +10,7 @@ pub enum InputMode {
     Rating,
     Director,
     Naming(NamingMode),
+    Breakdown,
 }
 
 pub struct App {

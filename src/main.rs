@@ -63,9 +63,13 @@ fn main() -> io::Result<()> {
                                 };
                                 app.selected_index = 0;
                             }
+                            KeyCode::Enter => {
+                                app.input_mode = InputMode::Breakdown;
+                            }
                             _ => {}
                         }
                     }
+                    InputMode::Breakdown => {}
                     _ => match key.code {
                         KeyCode::Enter => {
                             if !app.input_value.is_empty() {
