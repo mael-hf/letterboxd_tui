@@ -30,45 +30,6 @@ fn main() -> io::Result<()> {
         if let Event::Key(key) = event::read()? {
             if key.kind == KeyEventKind::Press {
                 match app.input_mode {
-                    InputMode::Naming(_) => match key.code {
-                        KeyCode::Enter => {
-                            if !app.input_value.is_empty() {
-                                match app.input_mode {
-                                    InputMode::Naming(NamingMode::Creating) => {
-                                        app.add_film(app.input_value.clone())
-                                    }
-                                    InputMode::Naming(NamingMode::Modifying) => {
-                                        app.rename(app.input_value.clone())
-                                    }
-
-                                    _ => todo!(),
-                                }
-                            }
-                            app.input_mode = InputMode::Normal;
-                        }
-                        KeyCode::Esc => app.input_mode = InputMode::Normal,
-                        KeyCode::Char(c) => app.input_value.push(c),
-                        KeyCode::Backspace => {
-                            app.input_value.pop();
-                        }
-                        _ => {}
-                    },
-                    InputMode::Rating => match key.code {
-                        KeyCode::Enter => {
-                            if let Ok(val) = app.input_value.parse::<u8>() {
-                                if !app.input_value.is_empty() && 0 < val && val <= 10 {
-                                    app.rate(val)
-                                }
-                                app.input_mode = InputMode::Normal;
-                            }
-                        }
-                        KeyCode::Esc => app.input_mode = InputMode::Normal,
-                        KeyCode::Char(c) => app.input_value.push(c),
-                        KeyCode::Backspace => {
-                            app.input_value.pop();
-                        }
-                        _ => {}
-                    },
                     InputMode::Normal => {
                         match key.code {
                             KeyCode::Char('q') => break,
@@ -90,6 +51,10 @@ fn main() -> io::Result<()> {
                                 app.input_mode = InputMode::Rating;
                                 app.input_value.clear();
                             }
+                            KeyCode::Char('y') => {
+                                app.input_mode = InputMode::Director;
+                                app.input_value.clear();
+                            }
                             KeyCode::Char('f') => {
                                 app.filter = match app.filter {
                                     models::Filter::All => models::Filter::Unwatched,
@@ -101,6 +66,36 @@ fn main() -> io::Result<()> {
                             _ => {}
                         }
                     }
+                    _ => match key.code {
+                        KeyCode::Enter => {
+                            if !app.input_value.is_empty() {
+                                match app.input_mode {
+                                    InputMode::Naming(NamingMode::Creating) => {
+                                        app.add_film(app.input_value.clone())
+                                    }
+                                    InputMode::Naming(NamingMode::Modifying) => {
+                                        app.rename(app.input_value.clone())
+                                    }
+                                    InputMode::Director => app.director(app.input_value.clone()),
+                                    InputMode::Rating => {
+                                        if let Ok(val) = app.input_value.parse::<u8>() {
+                                            if !app.input_value.is_empty() && 0 < val && val <= 10 {
+                                                app.rate(val)
+                                            }
+                                        }
+                                    }
+                                    _ => {}
+                                }
+                                app.input_mode = InputMode::Normal;
+                            }
+                        }
+                        KeyCode::Esc => app.input_mode = InputMode::Normal,
+                        KeyCode::Char(c) => app.input_value.push(c),
+                        KeyCode::Backspace => {
+                            app.input_value.pop();
+                        }
+                        _ => {}
+                    },
                 }
             }
         }
@@ -109,9 +104,6 @@ fn main() -> io::Result<()> {
         crossterm::terminal::ClearType::All,
     ))?;
 
-    // if let Err(e) = storage::save(&app.films) {
-    //     eprintln!("Failed to save: {}", e);
-    // }
     disable_raw_mode()?;
     Ok(())
 }

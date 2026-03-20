@@ -1,4 +1,4 @@
-use crate::app::{App,InputMode,NamingMode};
+use crate::app::{App, InputMode, NamingMode};
 
 use ratatui::{
     layout::{Constraint, Direction, Layout},
@@ -65,41 +65,26 @@ pub fn ui(frame: &mut Frame, app: &App) {
 
     frame.render_widget(help_text, chunks[2]);
 
-    match app.input_mode {
-        InputMode::Naming(_) => {
-            let title = if matches!(app.input_mode, InputMode::Naming(NamingMode::Creating)){
-                String::from("Name Film")
-            } else {
-                String::from("Rename Film")
-            };
-            let popup = Paragraph::new(app.input_value.as_str())
-                .block(
-                    Block::default()
-                        .title(title)
-                        .borders(Borders::ALL)
-                        .border_style(Style::new().fg(Color::Yellow)),
-                )
-                .style(Style::new().bg(Color::Black));
+    if !matches!(app.input_mode, InputMode::Normal) {
+        let title = match app.input_mode {
+            InputMode::Naming(NamingMode::Creating) => String::from("Name Film"),
+            InputMode::Naming(NamingMode::Modifying) => String::from("Rename Film"),
+            InputMode::Rating => String::from("Rate film (1-10)"),
+            InputMode::Director => String::from("Add Director"),
+            _ => String::from("an error occured"),
+        };
+        let popup = Paragraph::new(app.input_value.as_str())
+            .block(
+                Block::default()
+                    .title(title)
+                    .borders(Borders::ALL)
+                    .border_style(Style::new().fg(Color::Yellow)),
+            )
+            .style(Style::new().bg(Color::Black));
 
-            let area = centered_rect(60, 3, frame.area());
-            frame.render_widget(Clear, area);
-            frame.render_widget(popup, area);
-        }
-        InputMode::Rating => {
-            let popup = Paragraph::new(app.input_value.as_str())
-                .block(
-                    Block::default()
-                        .title("Rate film (1-10)")
-                        .borders(Borders::ALL)
-                        .border_style(Style::new().fg(Color::Yellow)),
-                )
-                .style(Style::new().bg(Color::Black));
-
-            let area = centered_rect(60, 3, frame.area());
-            frame.render_widget(Clear, area);
-            frame.render_widget(popup, area);
-        }
-        _ => {}
+        let area = centered_rect(60, 3, frame.area());
+        frame.render_widget(Clear, area);
+        frame.render_widget(popup, area);
     }
 }
 
