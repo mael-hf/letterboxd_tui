@@ -51,6 +51,10 @@ fn main() -> io::Result<()> {
                                 app.input_mode = InputMode::Rating;
                                 app.input_value.clear();
                             }
+                            KeyCode::Char('c') => {
+                                app.input_mode = InputMode::Commenting;
+                                app.input_value.clear();
+                            }
                             KeyCode::Char('y') => {
                                 app.input_mode = InputMode::Director;
                                 app.input_value.clear();
@@ -70,7 +74,10 @@ fn main() -> io::Result<()> {
                         }
                     }
                     InputMode::Breakdown => {
-                        if matches!(key.code, KeyCode::Enter) | matches!(key.code, KeyCode::Esc) | matches!(key.code, KeyCode::Char('q')) {
+                        if matches!(key.code, KeyCode::Enter)
+                            | matches!(key.code, KeyCode::Esc)
+                            | matches!(key.code, KeyCode::Char('q'))
+                        {
                             app.input_mode = InputMode::Normal;
                         }
                     }
@@ -84,6 +91,7 @@ fn main() -> io::Result<()> {
                                     InputMode::Naming(NamingMode::Modifying) => {
                                         app.rename(app.input_value.clone())
                                     }
+                                    InputMode::Commenting => app.comment(app.input_value.clone()),
                                     InputMode::Director => app.director(app.input_value.clone()),
                                     InputMode::Rating => {
                                         if let Ok(val) = app.input_value.parse::<u8>() {

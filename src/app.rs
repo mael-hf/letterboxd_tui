@@ -9,6 +9,7 @@ pub enum InputMode {
     Normal,
     Rating,
     Director,
+    Commenting,
     Naming(NamingMode),
     Breakdown,
 }
@@ -70,6 +71,14 @@ impl App {
         if let Some(film) = self.filtered_films().get(self.selected_index) {
             if let Some(idx) = self.films.iter().position(|f| f.name == film.name) {
                 self.films[idx].rating = Some(rating);
+            }
+        }
+    }
+
+    pub fn comment(&mut self, comment: String) {
+        if let Some(film) = self.filtered_films().get(self.selected_index) {
+            if let Some(idx) = self.films.iter().position(|f| f.name == film.name) {
+                self.films[idx].comments = Some(comment);
             }
         }
     }

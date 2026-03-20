@@ -64,66 +64,81 @@ pub fn ui(frame: &mut Frame, app: &App) {
     .block(Block::default().borders(Borders::ALL));
 
     frame.render_widget(help_text, chunks[2]);
+    match app.input_mode {
+        InputMode::Normal => {}
+        InputMode::Breakdown => {
+            if let Some(film) = app.filtered_films().get(app.selected_index) {
+                let content = vec![
+                    Line::from(vec![Span::bold("🎬 ".into()), Span::raw(&film.name)]),
+                    Line::from(vec![
+                        Span::raw("Director: "),
+                        Span::raw(film.director.as_deref().unwrap_or("N/A")),
+                    ]),
+                    Line::from(vec![
+                        Span::raw("Rating: "),
+                        Span::raw(
+                            film.rating
+                                .map(|r| r.to_string())
+                                .unwrap_or_else(|| "N/A".into()),
+                        ),
+                    ]),
+                    Line::from(vec![
+                        Span::raw("Watched: "),
+                        Span::raw(if film.watched { "✅" } else { "❌" }),
+                    ]),
+                    Line::from(vec![
+                        Span::raw("Comments: "),
+                        Span::raw(film.comments.as_deref().unwrap_or("N/A")),
+                    ]),
+                ];
 
-    if !(matches!(app.input_mode, InputMode::Normal)
-        || matches!(app.input_mode, InputMode::Breakdown))
-    {
-        let title = match app.input_mode {
-            InputMode::Naming(NamingMode::Creating) => String::from("Name Film"),
-            InputMode::Naming(NamingMode::Modifying) => String::from("Rename Film"),
-            InputMode::Rating => String::from("Rate film (1-10)"),
-            InputMode::Director => String::from("Add Director"),
-            _ => String::from("an error occured"),
-        };
-        let popup = Paragraph::new(app.input_value.as_str())
-            .block(
-                Block::default()
-                    .title(title)
-                    .borders(Borders::ALL)
-                    .border_style(Style::new().fg(Color::Yellow)),
-            )
-            .style(Style::new().bg(Color::Black));
+                let popup = Paragraph::new(content)
+                    .block(
+                        Block::default()
+                            .title("Film Breakdown")
+                            .borders(Borders::ALL)
+                            .border_style(Style::new().fg(Color::Cyan)),
+                    )
+                    .style(Style::new().bg(Color::Black));
 
-        let area = centered_rect(60, 3, frame.area());
-        frame.render_widget(Clear, area);
-        frame.render_widget(popup, area);
-    }
-    if matches!(app.input_mode, InputMode::Breakdown) {
-        if let Some(film) = app.filtered_films().get(app.selected_index) {
-            let content = vec![
-                Line::from(vec![Span::bold("🎬 ".into()), Span::raw(&film.name)]),
-                Line::from(vec![
-                    Span::raw("Director: "),
-                    Span::raw(film.director.as_deref().unwrap_or("N/A")),
-                ]),
-                Line::from(vec![
-                    Span::raw("Rating: "),
-                    Span::raw(
-                        film.rating
-                            .map(|r| r.to_string())
-                            .unwrap_or_else(|| "N/A".into()),
-                    ),
-                ]),
-                Line::from(vec![
-                    Span::raw("Watched: "),
-                    Span::raw(if film.watched { "✅" } else { "❌" }),
-                ]),
-                Line::from(vec![
-                    Span::raw("Comments: "),
-                    Span::raw(film.comments.as_deref().unwrap_or("N/A")),
-                ]),
-            ];
-
-            let popup = Paragraph::new(content)
+                let area = centered_rect(70, 12, frame.area()); // wider and taller
+                frame.render_widget(Clear, area);
+                frame.render_widget(popup, area);
+            }
+        }
+        InputMode::Commenting => {
+            let popup = Paragraph::new(app.input_value.as_str())
                 .block(
                     Block::default()
-                        .title("Film Breakdown")
+                        .title("Comments : ")
                         .borders(Borders::ALL)
-                        .border_style(Style::new().fg(Color::Cyan)),
+                        .border_style(Style::new().fg(Color::Yellow)),
                 )
                 .style(Style::new().bg(Color::Black));
 
-            let area = centered_rect(70, 12, frame.area()); // wider and taller
+            let area = centered_rect(60, 10, frame.area());
+            frame.render_widget(Clear, area);
+            frame.render_widget(popup, area);
+
+        }
+        _ => {
+            let title = match app.input_mode {
+                InputMode::Naming(NamingMode::Creating) => String::from("Name Film"),
+                InputMode::Naming(NamingMode::Modifying) => String::from("Rename Film"),
+                InputMode::Rating => String::from("Rate film (1-10)"),
+                InputMode::Director => String::from("Add Director"),
+                _ => String::from("an error occured"),
+            };
+            let popup = Paragraph::new(app.input_value.as_str())
+                .block(
+                    Block::default()
+                        .title(title)
+                        .borders(Borders::ALL)
+                        .border_style(Style::new().fg(Color::Yellow)),
+                )
+                .style(Style::new().bg(Color::Black));
+
+            let area = centered_rect(60, 3, frame.area());
             frame.render_widget(Clear, area);
             frame.render_widget(popup, area);
         }
