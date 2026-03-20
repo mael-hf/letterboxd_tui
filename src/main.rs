@@ -25,7 +25,7 @@ fn main() -> io::Result<()> {
     app.films = storage::load();
 
     loop {
-        terminal.draw(|f| ui::ui(f, &mut app))?;
+        terminal.draw(|f| ui::ui(f, &app))?;
 
         if let Event::Key(key) = event::read()? {
             if key.kind == KeyEventKind::Press {
@@ -53,7 +53,22 @@ fn main() -> io::Result<()> {
                         }
                         _ => {}
                     },
-
+                    InputMode::Rating => match key.code {
+                        KeyCode::Enter => {
+                            if let Ok(val) = app.input_value.parse::<u8>() {
+                                if !app.input_value.is_empty() && 0 < val && val <= 10 {
+                                    app.rate(val)
+                                }
+                                app.input_mode = InputMode::Normal;
+                            }
+                        }
+                        KeyCode::Esc => app.input_mode = InputMode::Normal,
+                        KeyCode::Char(c) => app.input_value.push(c),
+                        KeyCode::Backspace => {
+                            app.input_value.pop();
+                        }
+                        _ => {}
+                    },
                     InputMode::Normal => {
                         match key.code {
                             KeyCode::Char('q') => break,
@@ -67,8 +82,12 @@ fn main() -> io::Result<()> {
                                 app.input_mode = InputMode::Naming(NamingMode::Creating);
                                 app.input_value.clear();
                             }
-                            KeyCode::Char('r') => {
+                            KeyCode::Char('n') => {
                                 app.input_mode = InputMode::Naming(NamingMode::Modifying);
+                                app.input_value.clear();
+                            }
+                            KeyCode::Char('r') => {
+                                app.input_mode = InputMode::Rating;
                                 app.input_value.clear();
                             }
                             KeyCode::Char('f') => {

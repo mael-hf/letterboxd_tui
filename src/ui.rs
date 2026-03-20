@@ -1,5 +1,4 @@
-use crate::app::App;
-use crate::app::InputMode;
+use crate::app::{App,InputMode,NamingMode};
 
 use ratatui::{
     layout::{Constraint, Direction, Layout},
@@ -66,25 +65,46 @@ pub fn ui(frame: &mut Frame, app: &App) {
 
     frame.render_widget(help_text, chunks[2]);
 
-    if matches!(app.input_mode, InputMode::Naming(_)) {
-        let popup = Paragraph::new(app.input_value.as_str())
-            .block(
-                Block::default()
-                    .title("Add Film")
-                    .borders(Borders::ALL)
-                    .border_style(Style::new().fg(Color::Yellow)),
-            )
-            .style(Style::new().bg(Color::Black));
+    match app.input_mode {
+        InputMode::Naming(_) => {
+            let title = if matches!(app.input_mode, InputMode::Naming(NamingMode::Creating)){
+                String::from("Name Film")
+            } else {
+                String::from("Rename Film")
+            };
+            let popup = Paragraph::new(app.input_value.as_str())
+                .block(
+                    Block::default()
+                        .title(title)
+                        .borders(Borders::ALL)
+                        .border_style(Style::new().fg(Color::Yellow)),
+                )
+                .style(Style::new().bg(Color::Black));
 
-        let area = centered_rect(60, 3, frame.area());
-        frame.render_widget(Clear, area);
-        frame.render_widget(popup, area);
+            let area = centered_rect(60, 3, frame.area());
+            frame.render_widget(Clear, area);
+            frame.render_widget(popup, area);
+        }
+        InputMode::Rating => {
+            let popup = Paragraph::new(app.input_value.as_str())
+                .block(
+                    Block::default()
+                        .title("Rate film (1-10)")
+                        .borders(Borders::ALL)
+                        .border_style(Style::new().fg(Color::Yellow)),
+                )
+                .style(Style::new().bg(Color::Black));
+
+            let area = centered_rect(60, 3, frame.area());
+            frame.render_widget(Clear, area);
+            frame.render_widget(popup, area);
+        }
+        _ => {}
     }
 }
 
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
     let mid_x = r.width / 2 - percent_x / 2;
-    let mid_y = r.height / 2; // - percent_y/2;
-    let popup = Rect::new(mid_x, mid_y, percent_x, percent_y);
-    popup
+    let mid_y = r.height / 2 - percent_y / 2;
+    Rect::new(mid_x, mid_y, percent_x, percent_y)
 }

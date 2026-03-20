@@ -7,8 +7,10 @@ pub enum NamingMode {
 
 pub enum InputMode {
     Normal,
+    Rating,
     Naming(NamingMode),
 }
+
 pub struct App {
     pub films: Vec<Film>,
     pub selected_index: usize,
@@ -61,7 +63,13 @@ impl App {
             }
         }
     }
-
+    pub fn rate(&mut self, rating: u8) {
+        if let Some(film) = self.filtered_films().get(self.selected_index) {
+            if let Some(idx) = self.films.iter().position(|f| f.name == film.name) {
+                self.films[idx].rating = Some(rating);
+            }
+        }
+    }
     pub fn rename(&mut self, new_name: String) {
         if let Some(film) = self.filtered_films().get(self.selected_index) {
             if let Some(idx) = self.films.iter().position(|f| f.name == film.name) {
